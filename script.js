@@ -15303,7 +15303,7 @@ const guessGrid = document.querySelector("[data-guess-grid]")
 // const dayOffset = msOffset / 1000 / 60 / 60 / 24
 const targetWord = targetWords[Math.floor(Math.random() * targetWords.length)]
 
-// const targetWord = 'eerie'
+// const targetWord = 'ninja'
 
 startInteraction()
 
@@ -15474,7 +15474,8 @@ function calculateColour(array) {
 
       if (targetWordCopy.includes(letter)) {
           tile.classList.add("toColourYellow")
-          const indexOfLetter = array.indexOf(letter)
+          const indexOfLetter = targetWordCopy.indexOf(letter)
+          console.log("index of letter is " + indexOfLetter)
           targetWordCopy[indexOfLetter] = "%" // replace letter with something else
       } else {
         tile.classList.add("toColourBlack")
