@@ -15303,6 +15303,8 @@ const guessGrid = document.querySelector("[data-guess-grid]")
 // const dayOffset = msOffset / 1000 / 60 / 60 / 24
 const targetWord = targetWords[Math.floor(Math.random() * targetWords.length)]
 
+// const targetWord = 'eerie'
+
 startInteraction()
 
 function startInteraction() {
@@ -15369,6 +15371,7 @@ function deleteKey() {
 
 function submitGuess() {
     const activeTiles = [...getActiveTiles()]
+    console.log(activeTiles)
     if (activeTiles.length !== WORD_LENGTH) {
         showAlert("Not enough letters")
         shakeTiles(activeTiles)
@@ -15386,38 +15389,132 @@ function submitGuess() {
     }
 
     stopInteraction()
-    activeTiles.forEach((...params) => flipTile(...params, guess))
+
+    flip(activeTiles)
+    
+    calculateColour(activeTiles)
+    
+    unflip(guess, activeTiles)
 }
 
-function flipTile(tile, index, array, guess) {
-    const letter = tile.dataset.letter
-    // case insensitive match is important hence "i" in querySelector
-    const key = keyboard.querySelector(`[data-key="${letter}"i]`)
+function flip (array) {
+  array.forEach((tile, index) => {
     setTimeout(() => {
-        tile.classList.add("flip")
-    }, (index * FLIP_ANIMATION_DURATION) / 2)
+        tile.classList.add('flip');
+    }, ((index * FLIP_ANIMATION_DURATION) / 2));
+  });
+}
 
-    tile.addEventListener("transitionend", () => {
-        tile.classList.remove("flip")
-        if (targetWord[index] === letter) {
-            tile.dataset.state = "correct"
-            key.classList.add("correct")
-        } else if (targetWord.includes(letter)) {
-            tile.dataset.state = "wrong-location"
-            key.classList.add("wrong-location")
-        } else {
-            tile.dataset.state = "wrong"
-            key.classList.add("wrong")
-        }
+// function flipTile(tile, index, array, guess) {
+  
+//     const letter = tile.dataset.letter
 
-        /*if animation has finished then begin the next guess step */
-        if (index === array.length - 1) {
-            tile.addEventListener("transitionend", () => {
-                startInteraction()
-                checkWinLose(guess, array)
-            }, {once:true})
-        }
-    }, {once:true})
+//     var targetWordCopy = targetWord.split("")
+
+//     console.log(targetWordCopy)
+//     case insensitive match is important hence "i" in querySelector
+//     const key = keyboard.querySelector(`[data-key="${letter}"i]`)
+//     setTimeout(() => {
+//         tile.classList.add("flip")
+//     }, (index * FLIP_ANIMATION_DURATION) / 2)
+
+//     tile.addEventListener("transitionend", () => {
+//         tile.classList.remove("flip")
+//         if (targetWordCopy[index] === letter) {
+//             tile.dataset.state = "correct"
+//             key.classList.add("correct")
+//             targetWordCopy = targetWordCopy.replace(targetWordCopy[index], "%") // replace letter with something else
+//             console.log(targetWordCopy[index])
+//         } else if (targetWordCopy.includes(letter)) {
+//             tile.dataset.state = "wrong-location"
+//             key.classList.add("wrong-location")
+//             targetWordCopy = targetWordCopy.replace(targetWordCopy[index], "%") // replace letter with something else
+//             console.log(targetWordCopy[index])
+//         } else {
+//             tile.dataset.state = "wrong"
+//             key.classList.add("wrong")
+//         }
+
+//         /*if animation has finished then begin the next guess step */
+//         if (index === array.length - 1) {
+//             tile.addEventListener("transitionend", () => {
+//                 startInteraction()
+//                 checkWinLose(guess, array)
+//             }, {once:true})
+//         }
+//     }, {once:true})
+// }
+
+function calculateColour(array) {
+
+  var targetWordCopy = targetWord.split("")
+
+  console.log(targetWordCopy)
+  
+  array.forEach((tile, index) => {
+    
+    const letter = tile.dataset.letter
+      // case insensitive match is important hence "i" in querySelector
+    const key = keyboard.querySelector(`[data-key="${letter}"i]`)
+
+    if (targetWordCopy[index] === letter) {
+        tile.classList.add("toColourGreen")
+        targetWordCopy[index] = "%" // replace letter with something else
+        console.log(tile)
+        console.log(key)
+        console.log(targetWordCopy)
+    }
+  })
+
+  array.forEach((tile, index) => {
+    
+    if (!tile.classList.contains("toColourGreen")) {
+      const letter = tile.dataset.letter
+      const key = keyboard.querySelector(`[data-key="${letter}"i]`)
+
+      if (targetWordCopy.includes(letter)) {
+          tile.classList.add("toColourYellow")
+          const indexOfLetter = array.indexOf(letter)
+          targetWordCopy[indexOfLetter] = "%" // replace letter with something else
+      } else {
+        tile.classList.add("toColourBlack")
+      }
+      console.log(tile)
+      console.log(key)
+      console.log(targetWordCopy)
+    }
+  })
+  console.log(targetWordCopy)
+}
+
+function unflip(guess, array) {
+  array.forEach((tile, index) => {
+    setTimeout(() => {
+      const letter = tile.dataset.letter
+      const key = keyboard.querySelector(`[data-key="${letter}"i]`)
+      if (tile.classList.contains("toColourGreen")){
+        tile.dataset.state = "correct"
+        key.classList.add("correct")
+        tile.classList.remove("toColourGreen")
+      } else if (tile.classList.contains("toColourYellow")){
+        tile.dataset.state = "wrong-location"
+        key.classList.add("wrong-location")
+        tile.classList.remove("toColourYellow")
+      } else {
+        tile.dataset.state = "wrong"
+        key.classList.add("wrong")
+        tile.classList.remove("toColourBlack")
+      }
+        tile.classList.remove('flip');
+    }, ((index * FLIP_ANIMATION_DURATION)/2)+250);
+  
+    if (index === array.length - 1) {
+      tile.addEventListener("transitionend", () => {
+          startInteraction()
+          checkWinLose(guess, array)
+      })
+    }
+  })
 }
 
 function getActiveTiles() {
@@ -15465,6 +15562,8 @@ function checkWinLose(guess, tiles) {
     if (remainingTiles.length === 0) {
         showAlert(targetWord.toUpperCase(), null)
         stopInteraction()
+    } else {
+      startInteraction()
     }
 }
 
