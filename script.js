@@ -15291,6 +15291,7 @@ const dictionary = [
     "shave"
   ]
 
+let playerHasWon = false
 const WORD_LENGTH = 5
 const FLIP_ANIMATION_DURATION = 500
 const DANCE_ANIMATION_DURATION = 500
@@ -15303,7 +15304,7 @@ const guessGrid = document.querySelector("[data-guess-grid]")
 // const dayOffset = msOffset / 1000 / 60 / 60 / 24
 const targetWord = targetWords[Math.floor(Math.random() * targetWords.length)]
 
-// const targetWord = 'ninja'
+// const targetWord = 'queer'
 
 startInteraction()
 
@@ -15405,49 +15406,9 @@ function flip (array) {
   });
 }
 
-// function flipTile(tile, index, array, guess) {
-  
-//     const letter = tile.dataset.letter
-
-//     var targetWordCopy = targetWord.split("")
-
-//     console.log(targetWordCopy)
-//     case insensitive match is important hence "i" in querySelector
-//     const key = keyboard.querySelector(`[data-key="${letter}"i]`)
-//     setTimeout(() => {
-//         tile.classList.add("flip")
-//     }, (index * FLIP_ANIMATION_DURATION) / 2)
-
-//     tile.addEventListener("transitionend", () => {
-//         tile.classList.remove("flip")
-//         if (targetWordCopy[index] === letter) {
-//             tile.dataset.state = "correct"
-//             key.classList.add("correct")
-//             targetWordCopy = targetWordCopy.replace(targetWordCopy[index], "%") // replace letter with something else
-//             console.log(targetWordCopy[index])
-//         } else if (targetWordCopy.includes(letter)) {
-//             tile.dataset.state = "wrong-location"
-//             key.classList.add("wrong-location")
-//             targetWordCopy = targetWordCopy.replace(targetWordCopy[index], "%") // replace letter with something else
-//             console.log(targetWordCopy[index])
-//         } else {
-//             tile.dataset.state = "wrong"
-//             key.classList.add("wrong")
-//         }
-
-//         /*if animation has finished then begin the next guess step */
-//         if (index === array.length - 1) {
-//             tile.addEventListener("transitionend", () => {
-//                 startInteraction()
-//                 checkWinLose(guess, array)
-//             }, {once:true})
-//         }
-//     }, {once:true})
-// }
-
 function calculateColour(array) {
 
-  var targetWordCopy = targetWord.split("")
+  let targetWordCopy = targetWord.split("")
 
   console.log(targetWordCopy)
   
@@ -15551,10 +15512,11 @@ function shakeTiles(tiles) {
 }
 
 function checkWinLose(guess, tiles) {
-    if (guess === targetWord) {
-        showAlert("You Win", 5000)
+    if ((guess === targetWord) && !playerHasWon) {
+        showAlert("You Win", 3000)
         danceTiles(tiles)
         stopInteraction()
+        playerHasWon = true
         return
     }
 
@@ -15564,7 +15526,7 @@ function checkWinLose(guess, tiles) {
         showAlert(targetWord.toUpperCase(), null)
         stopInteraction()
     } else {
-      startInteraction()
+        startInteraction()
     }
 }
 
